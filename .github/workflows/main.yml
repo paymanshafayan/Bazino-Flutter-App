@@ -1,53 +1,59 @@
-name: Flutter Build and Appetize Deploy
+name: Flutter Build APK & IPA
 
-# این اکشن با هر بار Push کردن کد روی برانچ main اجرا می‌شود
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
-    # استفاده از سرور لینوکس ابری گیت‌هاب (رایگان)
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
-    # ۱. دریافت کدهای پروژه از گیت‌هاب
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v5  # ارتقا به نسخه 5
 
-    # ۲. نصب جاوا برای اندروید
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      - name: Set up Java
+        uses: actions/setup-java@v5  # ارتقا به نسخه 5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
-    # ۳. نصب فلاتر
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
 
-    # ۴. دریافت پکیج‌های فلاتر
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-    # ۵. ساخت فایل APK اندروید (نسخه ریلیز)
-    - name: Build APK
-      run: flutter build apk --release
+      - name: Build APK
+        run: flutter build apk --release
 
-    # ۶. ارسال خودکار فایل APK به سایت Appetize.io
-    - name: Upload APK to Appetize.io
-      run: |
-        RESPONSE=$(curl --request POST \
-          --url https://appetize.io \
-          --header "X-API-KEY: ${{ secrets.APPETIZE_TOKEN }}" \
-          --form "file=@build/app/outputs/flutter-apk/app-release.apk" \
-          --form "platform=android")
-        
-        # استخراج کد عمومی برنامه برای ساخت لینک امولاتور
-        PUBLIC_URL=$(echo $RESPONSE | jq -r '.publicKey')
-        echo "--------------------------------------------------------"
-        echo "برنامه با موفقیت آپلود شد!"
-        echo "لینک اجرای آنلاین امولاتور: https://appetize.io"
-        echo "--------------------------------------------------------"
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5  # ارتقا به نسخه 5
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (No Sign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release-app
+          path: build/ios/iphoneos/Runner.app
