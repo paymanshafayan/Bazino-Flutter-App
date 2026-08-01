@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- Microphone permissions required for Jarvis Speech-To-Text -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -16,7 +16,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.bazino_app.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
