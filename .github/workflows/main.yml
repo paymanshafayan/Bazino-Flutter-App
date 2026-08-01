@@ -12,7 +12,7 @@ concurrency:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -36,8 +36,16 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APK (verbose)
+        run: flutter build apk --release -v
+
+      - name: Dump Gradle logs on failure
+        if: failure()
+        run: |
+          echo "==== gradle properties ===="
+          ./android/gradlew -p android properties || true
+          echo "==== last build outputs ===="
+          find android -type f \( -name "*.log" -o -name "mapping.txt" \) | head -100 || true
 
       - name: Verify APK exists
         run: test -f build/app/outputs/flutter-apk/app-release.apk
