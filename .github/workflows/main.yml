@@ -59,7 +59,7 @@ jobs:
 
       - name: Upload to Appetize.io
         env:
-          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+         APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_TOKEN }}
         run: |
           set -e
           APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
